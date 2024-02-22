@@ -38,5 +38,7 @@ WORKDIR /home/$USERNAME/workspace
 COPY --chown=ros ./src src
 RUN source /opt/ros/${ROS_DISTRO}/setup.bash \
     && sudo rosdep install --from-paths . --ignore-src -r -y --rosdistro=${ROS_DISTRO} \
+    && catkin_make \
+    && echo 'source ~/workspace/devel/setup.bash' >> /home/$USERNAME/.bashrc
     # && colcon build --symlink-install \
     # && echo 'source ~/workspace/install/local_setup.bash' >> /home/$USERNAME/.bashrc
