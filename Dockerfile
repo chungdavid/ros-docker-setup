@@ -5,7 +5,7 @@ SHELL ["/bin/bash", "-c"]
 
 RUN apt-get update \
     && apt-get install -y \
-    python3-pip \
+    python3-pip python3-catkin-tools gdb \
     && rm -rf /var/lib/apt/lists/*
 
 # Create the "ros" user, with the host user' IDs
@@ -23,10 +23,10 @@ RUN adduser --disabled-password --gecos '' $USERNAME \
 
 USER $USERNAME
 
-# Run rosdep update, add ROS, Gazebo, and colcon setup to ros user's .bashrc
+# Run rosdep update, add ROS, Gazebo
 RUN sudo apt-get update \
     && rosdep update \
-    && echo 'source /opt/ros/${ROS_DISTRO}/setup.bash' >> /home/$USERNAME/.bashrc 
+    && echo 'source /opt/ros/${ROS_DISTRO}/setup.bash' >> /home/$USERNAME/.bashrc
     #\
     # && echo 'source /usr/share/colcon_cd/function/colcon_cd.sh' >> /home/$USERNAME/.bashrc
 
@@ -38,7 +38,8 @@ WORKDIR /home/$USERNAME/workspace
 COPY --chown=ros ./src src
 RUN source /opt/ros/${ROS_DISTRO}/setup.bash \
     && sudo rosdep install --from-paths . --ignore-src -r -y --rosdistro=${ROS_DISTRO} \
-    && catkin_make -DCMAKE_BUILD_TYPE=Release \
+    && catkin init \
+    && catkin build \
     && echo 'source ~/workspace/devel/setup.bash' >> /home/$USERNAME/.bashrc
     # && colcon build --symlink-install \
     # && echo 'source ~/workspace/install/local_setup.bash' >> /home/$USERNAME/.bashrc
